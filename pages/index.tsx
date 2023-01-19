@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { LoadingSpinner } from "./components/loading-spinner"
+import { LoadingSpinner } from "../components/loading-spinner"
 
 export default function StartSession() {
   const [started, setStarted] = useState<boolean>(false)
@@ -7,7 +7,7 @@ export default function StartSession() {
   const [input, setInput] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
 
-  const handleStart = async () => {
+  const handleStart = async (location: string) => {
     setStarted(true)
     setLoading(true)
     const resp = await fetch("/api/start-session", {
@@ -16,7 +16,7 @@ export default function StartSession() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        location: "cyberpunk city street",
+        location,
       }),
     }).then((r) => r.json())
     if (resp.text) {
@@ -71,7 +71,23 @@ export default function StartSession() {
       ) : (
         <>
           <h1>Start Session</h1>
-          <button onClick={handleStart}>START</button>
+          <div style={{ display: "flex", padding: "10px 0px" }}>
+            <button
+              style={{ marginRight: 10 }}
+              onClick={() => handleStart("fantasy forest")}
+            >
+              Fantasy Forest
+            </button>
+            <button
+              style={{ marginRight: 10 }}
+              onClick={() => handleStart("cyberpunk city street")}
+            >
+              Cyberpunk City
+            </button>
+            <button onClick={() => handleStart("star wars planet")}>
+              Star Wars Planet
+            </button>
+          </div>
         </>
       )}
     </div>
