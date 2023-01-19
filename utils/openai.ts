@@ -12,7 +12,6 @@ export async function continueConversation({
   previousMessages: string[]
 }) {
   const previousString: string = previousMessages.join(" ")
-  console.log({ previousMessages, previousString })
   const prompt = `
 You are a dungeon master for a group of players. They will provide actions and you will continue their story without saying what actions the players take.
 

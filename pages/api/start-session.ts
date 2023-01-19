@@ -19,7 +19,5 @@ export default async function handler(
 
   const text = response.data.choices[0].text?.trim() || ""
 
-  console.log({ text, type: typeof text })
-
   res.status(200).json({ text })
 }
