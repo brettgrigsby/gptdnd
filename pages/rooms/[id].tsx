@@ -1,3 +1,13 @@
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+} from "@chakra-ui/react"
 import { useRouter } from "next/router"
 import Pusher from "pusher-js"
 import {
@@ -81,23 +91,44 @@ export default function Room() {
   }
 
   return (
-    <div>
-      <h2 style={{ textAlign: "center", margin: "10px 0" }}>
+    <Box
+      margin="auto"
+      maxWidth="720px"
+      height="100vh"
+      overflow="auto"
+      position="relative"
+      p={[4, null, null, 0]}
+    >
+      <Heading textAlign="center" position="sticky" top={0}>
         {((id as string) || "").toUpperCase()}
-      </h2>
-      <p style={{ marginBottom: 10 }}>
+      </Heading>
+      <Text mb={4}>
         Dungeon Master: You start out into the city on your own. There are many
         opportunities for work, adventures, profit and trouble.
-      </p>
+      </Text>
       {messages.map((message) => (
-        <p key={message} style={{ marginBottom: 10 }}>
+        <Text key={message} mb={4}>
           {message}
-        </p>
+        </Text>
       ))}
-      <form onSubmit={handleSubmit}>
-        <input type="text" value={message} onChange={handleMessageChange} />
-        <button type="submit">Send Message</button>
-      </form>
-    </div>
+      <Box
+        mb={"300px"}
+        position="sticky"
+        bottom={6}
+        bgColor="gray.800"
+        zIndex={1}
+      >
+        <form onSubmit={handleSubmit}>
+          <InputGroup>
+            <Input value={message} onChange={handleMessageChange} />
+            <InputRightElement w="fit-content" p={1}>
+              <Button size="sm" type="submit">
+                Send
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+        </form>
+      </Box>
+    </Box>
   )
 }
