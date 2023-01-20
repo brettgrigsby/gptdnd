@@ -1,5 +1,6 @@
+import { continueConversation } from "@/utils/openai"
 import { pusher } from "@/utils/pusher"
-import { sendMessage } from "@/utils/redis"
+import { getMessages, sendMessage } from "@/utils/redis"
 import type { NextApiRequest, NextApiResponse } from "next"
 
 type Data = {
@@ -11,11 +12,21 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    const { message, roomId } = req.body
+    const { message: rawMessage, roomId } = req.body
+    const message = `Player: ${rawMessage}`
 
     await sendMessage({ message, roomId })
     await pusher.trigger(`room-${roomId}`, "new-message", {
       message,
+    })
+
+    const previousMessages = await getMessages(roomId)
+    const aiMessage = await continueConversation({ previousMessages })
+    if (!aiMessage) throw new Error("No response from OpenAI")
+
+    await sendMessage({ message: aiMessage, roomId })
+    await pusher.trigger(`room-${roomId}`, "new-message", {
+      message: aiMessage,
     })
 
     res.status(200).json({ success: true })

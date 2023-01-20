@@ -83,10 +83,16 @@ export default function Room() {
   return (
     <div>
       <h2 style={{ textAlign: "center", margin: "10px 0" }}>
-        {(id as string).toUpperCase()}
+        {((id as string) || "").toUpperCase()}
       </h2>
+      <p style={{ marginBottom: 10 }}>
+        Dungeon Master: You start out into the city on your own. There are many
+        opportunities for work, adventures, profit and trouble.
+      </p>
       {messages.map((message) => (
-        <p key={message}>{message}</p>
+        <p key={message} style={{ marginBottom: 10 }}>
+          {message}
+        </p>
       ))}
       <form onSubmit={handleSubmit}>
         <input type="text" value={message} onChange={handleMessageChange} />
