@@ -1,95 +1,32 @@
-import { useState } from "react"
-import { LoadingSpinner } from "../components/loading-spinner"
+import { Box, Button, Heading, Text } from "@chakra-ui/react"
+import { useRouter } from "next/router"
 
-export default function StartSession() {
-  const [started, setStarted] = useState<boolean>(false)
-  const [messages, setMessages] = useState<string[]>([])
-  const [input, setInput] = useState<string>("")
-  const [loading, setLoading] = useState<boolean>(false)
-
-  const handleStart = async (location: string) => {
-    setStarted(true)
-    setLoading(true)
-    const resp = await fetch("/api/start-session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        location,
-      }),
-    }).then((r) => r.json())
-    if (resp.text) {
-      setMessages((prev) => [...prev, `Dungeon Master: ${resp.text}`])
-    }
-    setLoading(false)
+function generateRandom4CharacterCode() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  let code = ""
+  for (let i = 0; i < 4; i++) {
+    code += characters[Math.floor(Math.random() * characters.length)]
   }
+  return code
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value)
-  }
+export default function Home() {
+  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    setLoading(true)
-    const newMessages = [...messages, `Player: ${input}`]
-    setInput("")
-
-    const resp = await fetch("/api/send-message", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        previousMessages: newMessages,
-      }),
-    }).then((r) => r.json())
-
-    if (resp.text) setMessages([...newMessages, resp.text])
-    setLoading(false)
+  const handleStartSession = () => {
+    const code = generateRandom4CharacterCode()
+    router.push(`/rooms/${code}`)
   }
 
   return (
-    <div style={{ padding: 10 }}>
-      {started ? (
-        <div>
-          {messages.map((m) => (
-            <p key={m} style={{ marginBottom: 10 }}>
-              {m}
-            </p>
-          ))}
-          {loading ? (
-            <LoadingSpinner />
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <input value={input} onChange={handleChange} type="text" />
-              <button type="submit">SUBMIT</button>
-            </form>
-          )}
-        </div>
-      ) : (
-        <>
-          <h1>Start Session</h1>
-          <div style={{ display: "flex", padding: "10px 0px" }}>
-            <button
-              style={{ marginRight: 10 }}
-              onClick={() => handleStart("fantasy forest")}
-            >
-              Fantasy Forest
-            </button>
-            <button
-              style={{ marginRight: 10 }}
-              onClick={() => handleStart("cyberpunk city street")}
-            >
-              Cyberpunk City
-            </button>
-            <button onClick={() => handleStart("star wars planet")}>
-              Star Wars Planet
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+    <Box>
+      <Heading>GPT&D&D</Heading>
+      <Text>Welcome to endless roleplaying</Text>
+      <Text>
+        Click the button below to enter a room. Share the room code with others
+        to play together
+      </Text>
+      <Button onClick={handleStartSession}>Start Playing</Button>
+    </Box>
   )
 }
