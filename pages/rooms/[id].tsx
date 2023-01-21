@@ -97,7 +97,7 @@ export default function Room() {
       height="100vh"
       overflow="auto"
       position="relative"
-      p={[4, null, null, 0]}
+      p={[2, null, null, 0]}
     >
       <Heading textAlign="center" position="sticky" top={0}>
         {((id as string) || "").toUpperCase()}
@@ -115,7 +115,7 @@ export default function Room() {
         mb={"300px"}
         position="sticky"
         bottom={6}
-        bgColor="gray.800"
+        bgColor="blackAlpha.800"
         zIndex={1}
       >
         <form onSubmit={handleSubmit}>
