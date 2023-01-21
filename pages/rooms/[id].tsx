@@ -115,7 +115,7 @@ export default function Room() {
         mb={"300px"}
         position="sticky"
         bottom={6}
-        bgColor="blackAlpha.800"
+        bgColor="whiteAlpha.800"
         zIndex={1}
       >
         <form onSubmit={handleSubmit}>
