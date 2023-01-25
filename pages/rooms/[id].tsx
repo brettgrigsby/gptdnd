@@ -1,3 +1,4 @@
+import { Character } from "@/types"
 import {
   Box,
   Button,
@@ -15,8 +16,10 @@ import {
   FormEventHandler,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react"
+import { useCookies } from "react-cookie"
 
 export default function Room() {
   const router = useRouter()
@@ -24,6 +27,11 @@ export default function Room() {
   const [pusher, setPusher] = useState<Pusher | null>(null)
   const [messages, setMessages] = useState<string[]>([])
   const [message, setMessage] = useState("")
+  const [cookies] = useCookies(["gptndnd-character"])
+
+  const character: Character = useMemo(() => {
+    return cookies["gptndnd-character"]
+  }, [cookies])
 
   // set the pusher instance
   useEffect(() => {
@@ -64,27 +72,36 @@ export default function Room() {
       body: JSON.stringify({
         roomId: id,
         message,
+        characterName: character?.name || "Player",
       }),
     })
 
     setMessage("")
   }
 
-  const handleGetMessages = useCallback(async () => {
+  const handleJoinRoom = useCallback(async () => {
     if (!id) return
 
-    const response = await fetch("/api/get-messages?roomId=" + id).then((res) =>
-      res.json()
-    )
+    const response = await fetch("/api/join-room", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        roomId: id,
+        character,
+      }),
+    }).then((res) => res.json())
 
+    console.log({ response })
     if (response.messages) {
       setMessages(response.messages)
     }
-  }, [id])
+  }, [id, character])
 
   useEffect(() => {
-    handleGetMessages()
-  }, [handleGetMessages])
+    handleJoinRoom()
+  }, [handleJoinRoom])
 
   const handleMessageChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setMessage(e.target.value)

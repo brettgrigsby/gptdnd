@@ -1,4 +1,5 @@
 import Redis from "ioredis"
+import type { Character } from "@/types"
 
 async function getRedis() {
   const redis = new Redis(process.env.REDIS_URL || "")
@@ -24,4 +25,23 @@ async function getMessages(roomId: string): Promise<string[]> {
   return messages
 }
 
-export { sendMessage, getMessages }
+async function getCharacters(roomId: string): Promise<Character[]> {
+  const redis = await getRedis()
+  const characters = await redis.smembers(`${roomId}-characters`)
+  await redis.disconnect()
+  return characters.map((char) => JSON.parse(char))
+}
+
+async function addCharacter({
+  character,
+  roomId,
+}: {
+  character: Character
+  roomId: string
+}) {
+  const redis = await getRedis()
+  await redis.sadd(`${roomId}-characters`, JSON.stringify(character))
+  await redis.disconnect()
+}
+
+export { sendMessage, getMessages, addCharacter, getCharacters }

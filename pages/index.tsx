@@ -1,11 +1,16 @@
+import { CharacterSelection } from "@/components/chracter-selection"
 import {
   Box,
   Button,
+  Drawer,
+  DrawerContent,
+  DrawerOverlay,
   Heading,
   Input,
   InputGroup,
   InputRightElement,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react"
 import { useRouter } from "next/router"
 import { FormEventHandler, useState } from "react"
@@ -22,6 +27,7 @@ function generateRandom4CharacterCode() {
 export default function Home() {
   const router = useRouter()
   const [code, setCode] = useState("")
+  const { onOpen, isOpen, onClose } = useDisclosure()
 
   const handleStartSession = () => {
     const newCode = generateRandom4CharacterCode()
@@ -68,6 +74,10 @@ export default function Home() {
       <Button w="250px" onClick={handleStartSession}>
         Start a New Session
       </Button>
+      <Box mt={4}>
+        <Button onClick={onOpen}>Character</Button>
+        <CharacterSelection isOpen={isOpen} onClose={onClose} />
+      </Box>
     </Box>
   )
 }
