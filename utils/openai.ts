@@ -14,7 +14,7 @@ export async function continueConversation({
   previousMessages: string[]
   characters: Character[]
 }) {
-  const previousString: string = previousMessages.slice(-10).join(" ")
+  const previousString: string = previousMessages.slice(-20).join(" ")
   const prompt = `
 You are the Dungeon Master for the following players:
 ${characters
