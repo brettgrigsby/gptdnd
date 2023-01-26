@@ -38,13 +38,12 @@ Dungeon Master: The barkeep rebukes your advances and says "Maybe you should loo
 Dungeon Master: You start out into the city on your own. There are many opportunities for work, adventures, profit and trouble.
 ${previousString}
 `
-  console.log({ prompt })
 
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     prompt,
     temperature: 0.7,
-    max_tokens: 750,
+    max_tokens: 2000,
   })
 
   return response.data.choices[0].text?.trim()
