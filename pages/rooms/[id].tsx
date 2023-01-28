@@ -28,6 +28,7 @@ export default function Room() {
   const [messages, setMessages] = useState<string[]>([])
   const [message, setMessage] = useState("")
   const [cookies] = useCookies(["gptndnd-character"])
+  const [gameState, setGameState] = useState<string>("")
 
   const character: Character = useMemo(() => {
     return cookies["gptndnd-character"]
@@ -48,6 +49,10 @@ export default function Room() {
       const channel = pusher.subscribe(`room-${id}`)
       channel.bind("new-message", (data: any) => {
         if (data.message) {
+          const split = data.message.split("GAME STATE: ")
+          if (split[1]) {
+            setGameState(split[1])
+          }
           setMessages((messages) => [...messages, data.message])
         }
       })
@@ -82,7 +87,7 @@ export default function Room() {
   const handleJoinRoom = useCallback(async () => {
     if (!id) return
 
-    const response = await fetch("/api/join-room", {
+    const response: { messages: string[] } = await fetch("/api/join-room", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,9 +98,13 @@ export default function Room() {
       }),
     }).then((res) => res.json())
 
-    console.log({ response })
     if (response.messages) {
       setMessages(response.messages)
+      //@ts-ignore
+      const latestGameState = response.messages
+        .find((message) => message.includes("GAME STATE: "))
+        .split("GAME STATE: ")[1]
+      setGameState(latestGameState)
     }
   }, [id, character])
 
@@ -123,21 +132,23 @@ export default function Room() {
         Dungeon Master: You start out into the city on your own. There are many
         opportunities for work, adventures, profit and trouble.
       </Text>
-      {messages.map((message) => (
-        <Text key={message} mb={4}>
-          {message}
-        </Text>
-      ))}
-      <Box
-        mb={"300px"}
-        position="sticky"
-        bottom={6}
-        bgColor="whiteAlpha.800"
-        zIndex={1}
-      >
+      {messages.map((message) => {
+        const split = message.split("GAME STATE: ")
+        return (
+          <Text key={message} mb={4}>
+            {split[0]}
+          </Text>
+        )
+      })}
+      <Box mb={"300px"} position="sticky" bottom={6} zIndex={1}>
+        <Text textAlign="center">{gameState}</Text>
         <form onSubmit={handleSubmit}>
           <InputGroup>
-            <Input value={message} onChange={handleMessageChange} />
+            <Input
+              bgColor="whiteAlpha.800"
+              value={message}
+              onChange={handleMessageChange}
+            />
             <InputRightElement w="fit-content" p={1}>
               <Button size="sm" type="submit">
                 Send
