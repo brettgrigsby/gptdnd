@@ -14,14 +14,14 @@ export async function continueConversation({
   previousMessages: string[]
   characters: Character[]
 }) {
-  const previousString: string = previousMessages.slice(-20).join(" ")
+  const previousString: string = previousMessages.slice(-20).join("\n")
   const prompt = `
 You are the Dungeon Master for the following players:
 ${characters
   .map((char) => `${char.name} a ${char.race} ${char.class}`)
   .join(", and ")}
 
-Here are some examples of how you might response to a player's action:
+Here are some examples of how you might respond to a player's action:
 
 Grumby: I strike the goblin with my sword and succeed.
 Dungeon Master: Your blade slices into the goblin's right arm and he drops his rusty mace.
