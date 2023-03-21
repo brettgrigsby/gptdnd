@@ -1,5 +1,6 @@
 import Redis from "ioredis"
 import type { Character } from "@/types"
+import { ChatCompletionResponseMessage } from "openai"
 
 async function getRedis() {
   const redis = new Redis(process.env.REDIS_URL || "")
@@ -8,21 +9,23 @@ async function getRedis() {
 }
 
 type SendMessageParams = {
-  message: string
+  message: ChatCompletionResponseMessage
   roomId: string
 }
 
 async function sendMessage({ message, roomId }: SendMessageParams) {
   const redis = await getRedis()
-  await redis.rpush(`${roomId}-messages`, message)
+  await redis.rpush(`${roomId}-messages`, JSON.stringify(message))
   await redis.disconnect()
 }
 
-async function getMessages(roomId: string): Promise<string[]> {
+async function getMessages(
+  roomId: string
+): Promise<ChatCompletionResponseMessage[]> {
   const redis = await getRedis()
   const messages = await redis.lrange(`${roomId}-messages`, 0, -1)
   await redis.disconnect()
-  return messages
+  return messages.map((msg) => JSON.parse(msg))
 }
 
 async function getCharacters(roomId: string): Promise<Character[]> {

@@ -10,6 +10,7 @@ import {
   Text,
 } from "@chakra-ui/react"
 import { useRouter } from "next/router"
+import { ChatCompletionResponseMessage } from "openai"
 import Pusher from "pusher-js"
 import {
   ChangeEventHandler,
@@ -25,7 +26,7 @@ export default function Room() {
   const router = useRouter()
   const { id } = router.query
   const [pusher, setPusher] = useState<Pusher | null>(null)
-  const [messages, setMessages] = useState<string[]>([])
+  const [messages, setMessages] = useState<ChatCompletionResponseMessage[]>([])
   const [message, setMessage] = useState("")
   const [cookies] = useCookies(["gptndnd-character"])
   const [gameState, setGameState] = useState<string>("")
@@ -47,15 +48,18 @@ export default function Room() {
   useEffect(() => {
     if (pusher && id) {
       const channel = pusher.subscribe(`room-${id}`)
-      channel.bind("new-message", (data: any) => {
-        if (data.message) {
-          const split = data.message.split("GAME STATE: ")
-          if (split[1]) {
-            setGameState(split[1])
+      channel.bind(
+        "new-message",
+        (data: { message: ChatCompletionResponseMessage }) => {
+          if (data.message) {
+            const split = data.message.content.split("GAME STATE: ")
+            if (split[1]) {
+              setGameState(split[1])
+            }
+            setMessages((messages) => [...messages, data.message])
           }
-          setMessages((messages) => [...messages, data.message])
         }
-      })
+      )
     }
     return () => {
       if (pusher) {
@@ -87,24 +91,31 @@ export default function Room() {
   const handleJoinRoom = useCallback(async () => {
     if (!id) return
 
-    const response: { messages: string[] } = await fetch("/api/join-room", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        roomId: id,
-        character,
-      }),
-    }).then((res) => res.json())
+    const response: { messages: ChatCompletionResponseMessage[] } = await fetch(
+      "/api/join-room",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          roomId: id,
+          character,
+        }),
+      }
+    ).then((res) => res.json())
 
     if (response.messages) {
       setMessages(response.messages)
       //@ts-ignore
       const latestGameState = response.messages
-        .find((message) => message.includes("GAME STATE: "))
-        .split("GAME STATE: ")[1]
-      setGameState(latestGameState)
+        .slice()
+        .reverse()
+        .find((message) => message.content.includes("GAME STATE: "))
+
+      if (latestGameState) {
+        setGameState(latestGameState.content.split("GAME STATE: ")[1])
+      }
     }
   }, [id, character])
 
@@ -133,9 +144,10 @@ export default function Room() {
         opportunities for work, adventures, profit and trouble.
       </Text>
       {messages.map((message) => {
-        const split = message.split("GAME STATE: ")
+        const split = message.content.split("GAME STATE: ")
         return (
-          <Text key={message} mb={4}>
+          <Text key={message.content} mb={4}>
+            {message.role === "assistant" && "Dungeon Master: "}
             {split[0]}
           </Text>
         )

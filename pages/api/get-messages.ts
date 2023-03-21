@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { continueConversation } from "@/utils/openai"
 import { getMessages } from "@/utils/redis"
+import { ChatCompletionResponseMessage } from "openai"
 
 type Data = {
-  messages: string[]
+  messages: ChatCompletionResponseMessage[]
 }
 
 export default async function handler(

@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import type { Character } from "@/types"
 import { addCharacter, getMessages, getCharacters } from "@/utils/redis"
+import { ChatCompletionResponseMessage } from "openai"
 
 type Data = {
-  messages: string[]
+  messages: ChatCompletionResponseMessage[]
   characters: Character[]
 }
 
