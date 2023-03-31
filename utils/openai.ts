@@ -50,7 +50,7 @@ export async function continueConversation({
   `
 
   const response = await openai.createChatCompletion({
-    model: "gpt-4",
+    model: "gpt-3.5-turbo",
     temperature: 0.7,
     messages: [
       {

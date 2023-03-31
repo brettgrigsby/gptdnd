@@ -31,12 +31,17 @@ export default async function handler(
     res.status(200).json({ success: true })
 
     const previousMessages = await getMessages(roomId)
+    console.log({ previousMessages: previousMessages.length })
     const characters = await getCharacters(roomId)
+    console.log({ characters: characters.length })
     const aiMessage = await continueConversation({
       previousMessages,
       characters,
     })
-    if (!aiMessage) throw new Error("No response from OpenAI")
+    if (!aiMessage) {
+      console.error(`No response from OpenAI`)
+      throw new Error("No response from OpenAI")
+    }
 
     await sendMessage({ message: aiMessage, roomId })
     await pusher.trigger(`room-${roomId}`, "new-message", {
