@@ -49,22 +49,28 @@ export async function continueConversation({
   GAME STATE: Location: Large Cavern, Enemies: none
   `
 
-  const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    temperature: 0.7,
-    messages: [
-      {
-        role: "system",
-        content: systemContent,
-      },
-      {
-        role: "assistant",
-        content:
-          "You start out into the city on your own. There are many opportunities for work, adventures, profit and trouble.",
-      },
-      ...previousMessages,
-    ],
-  })
+  try {
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      temperature: 0.7,
+      messages: [
+        {
+          role: "system",
+          content: systemContent,
+        },
+        {
+          role: "assistant",
+          content:
+            "You start out into the city on your own. There are many opportunities for work, adventures, profit and trouble.",
+        },
+        ...previousMessages,
+      ],
+    })
+    console.log({ response, choices: response.data.choices })
 
-  return response.data.choices[0].message
+    return response.data.choices[0].message
+  } catch (err) {
+    console.log({ err })
+    return "I'm sorry, I'm having trouble understanding you. Please try again."
+  }
 }
