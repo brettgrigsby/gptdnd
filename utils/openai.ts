@@ -71,6 +71,6 @@ export async function continueConversation({
     return response.data.choices[0].message
   } catch (err) {
     console.log({ err })
-    return "I'm sorry, I'm having trouble understanding you. Please try again."
+    return
   }
 }
