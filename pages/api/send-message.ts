@@ -38,6 +38,7 @@ export default async function handler(
       previousMessages,
       characters,
     })
+    console.log({ aiMessage })
     if (!aiMessage) {
       console.error(`No response from OpenAI`)
       throw new Error("No response from OpenAI")
