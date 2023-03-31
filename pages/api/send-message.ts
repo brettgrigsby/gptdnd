@@ -28,8 +28,6 @@ export default async function handler(
       message,
     })
 
-    res.status(200).json({ success: true })
-
     const previousMessages = await getMessages(roomId)
     console.log({ previousMessages: previousMessages.length })
     const characters = await getCharacters(roomId)
@@ -48,6 +46,7 @@ export default async function handler(
     await pusher.trigger(`room-${roomId}`, "new-message", {
       message: aiMessage,
     })
+    res.status(200).json({ success: true })
   } catch (err) {
     console.error(err)
     //@ts-ignore
