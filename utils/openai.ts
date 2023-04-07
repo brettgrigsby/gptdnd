@@ -24,9 +24,10 @@ export async function continueConversation({
     .map((char) => `${char.name} a ${char.race} ${char.class}`)
     .join(", and ")}
 
-  You will respond to the players' actions with a description of the results and the game state.
+  You will respond to the players' actions with a description of the results.
+  You will also update the value for GAME STATE.
 
-  The game state consists of the following:
+  The GAME STATE consists of 2 values:
     - Location
     - Enemies
   
@@ -51,8 +52,8 @@ export async function continueConversation({
 
   try {
     const response = await openai.createChatCompletion({
-      model: "gpt-4",
-      // temperature: 1.5,
+      model: "gpt-3.5-turbo",
+      temperature: 0.7,
       messages: [
         {
           role: "system",
