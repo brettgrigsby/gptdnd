@@ -14,19 +14,22 @@ import {
   UseDisclosureProps,
 } from "@chakra-ui/react"
 import { useState } from "react"
-import { useCookies } from "react-cookie"
 import type { Character } from "@/types"
+import { useCharacter } from "@/contexts/character-context"
 
-export const CharacterSelection: React.FC<UseDisclosureProps> = ({
+type Props = UseDisclosureProps & {
+  onSubmit: (char: Character) => void
+}
+
+export const CharacterSelection: React.FC<Props> = ({
   isOpen,
   onClose: paramOnClose,
+  onSubmit,
 }) => {
-  const [cookies, setCookie] = useCookies(["gptndnd-character"])
-  const traits = cookies["gptndnd-character"] as Character
   const [values, setValues] = useState<Character>({
-    name: traits?.name || "",
-    race: traits?.race || "human",
-    class: traits?.class || "fighter",
+    name: "",
+    race: "human",
+    class: "fighter",
   })
 
   const onClose = paramOnClose || (() => {})
@@ -35,7 +38,7 @@ export const CharacterSelection: React.FC<UseDisclosureProps> = ({
     e.preventDefault()
     if (!values.name) return
 
-    setCookie("gptndnd-character", values)
+    onSubmit(values)
     onClose()
   }
 

@@ -1,10 +1,6 @@
-import { CharacterSelection } from "@/components/chracter-selection"
 import {
   Box,
   Button,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
   Heading,
   Input,
   InputGroup,
@@ -13,25 +9,33 @@ import {
   useDisclosure,
 } from "@chakra-ui/react"
 import { useRouter } from "next/router"
-import { FormEventHandler, useState } from "react"
-
-function generateRandom4CharacterCode() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  let code = ""
-  for (let i = 0; i < 4; i++) {
-    code += characters[Math.floor(Math.random() * characters.length)]
-  }
-  return code
-}
+import { FormEventHandler, useState, useMemo } from "react"
+import { useCharacter } from "@/contexts/character-context"
 
 export default function Home() {
   const router = useRouter()
   const [code, setCode] = useState("")
   const { onOpen, isOpen, onClose } = useDisclosure()
+  const character = useCharacter()
 
   const handleStartSession = () => {
-    const newCode = generateRandom4CharacterCode()
-    router.push(`/rooms/${newCode}`)
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL
+    if (!serverUrl) return
+    // send post request to server to create room
+    fetch(`${serverUrl}/rooms/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        router.push(`/rooms/${data.room_id}`)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
   }
 
   const handleJoinSession: FormEventHandler<HTMLFormElement> = (e) => {
@@ -62,6 +66,7 @@ export default function Home() {
             placeholder="Enter a room code"
             value={code}
             onChange={(e) => setCode(e.target.value)}
+            isDisabled={!character}
           />
           <InputRightElement w="fit-content" p={1}>
             <Button size="sm" type="submit">
@@ -71,13 +76,9 @@ export default function Home() {
         </InputGroup>
       </form>
       <Text my={4}>or</Text>
-      <Button w="250px" onClick={handleStartSession}>
+      <Button w="250px" onClick={handleStartSession} isDisabled={!character}>
         Start a New Session
       </Button>
-      <Box mt={4}>
-        <Button onClick={onOpen}>Character</Button>
-        <CharacterSelection isOpen={isOpen} onClose={onClose} />
-      </Box>
     </Box>
   )
 }
