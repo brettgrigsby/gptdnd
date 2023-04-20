@@ -3,6 +3,7 @@ import type { AppProps } from "next/app"
 import { ChakraProvider } from "@chakra-ui/react"
 // import { CharacterProvider } from "@/contexts/character-context"
 import dynamic from "next/dynamic"
+import { Analytics } from "@vercel/analytics/react"
 
 export default function App({ Component, pageProps }: AppProps) {
   const CharacterProvider = dynamic(
@@ -17,6 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <ChakraProvider>
       <CharacterProvider>
         <Component {...pageProps} />
+        <Analytics />
       </CharacterProvider>
     </ChakraProvider>
   )
